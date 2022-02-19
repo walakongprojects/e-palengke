@@ -345,7 +345,7 @@ router.post('/cod', auth.isUser, (req,res) => {
 
       invoice = {
         logo: "http://invoiced.com/img/logo-invoice.png",
-        from: "Invoiced\n701 Brazos St\nAustin, TX 78748",
+        from: "Invoiced\n143 Pureza St\nSta. Mesa, Manila 78748",
         to: createdSale.buyerName,
         currency: "php",
         number: createdSale._id,
