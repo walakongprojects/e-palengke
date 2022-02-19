@@ -23,7 +23,7 @@ const auth = require('./config/auth');
 
 // Setup Database
 const myDb = require('./config/database');
-mongoose.connect(myDb.databaseDev, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(myDb.databaseDev, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true });
 mongoose.connection
   .on('error', console.error.bind(console, 'Connection error: '))
   .once('open', () => console.log('Connected to MongoDB'))
@@ -132,17 +132,21 @@ const pagesRoutes           = require('./routes/pages'),
       productsRoutes        = require('./routes/products'),
       usersRoutes           = require('./routes/users'),
       salesRoutes           = require('./routes/admin_sales'),
-      cartRoutes            = require('./routes/cart');
+      cartRoutes            = require('./routes/cart'),
+      adminBidRoutes            = require('./routes/admin_bid'),
+      bidRoutes            = require('./routes/bid');
 
 
 app.use('/admin/pages', adminPagesRoutes);
 app.use('/admin/categories', adminCategoriesRoutes);
 app.use('/admin/products', adminProducts);
+app.use('/admin/bids', adminBidRoutes);
 app.use('/admin/sales', salesRoutes);
 app.use('/admin', admin);
 app.use('/products', productsRoutes);
 app.use('/cart', cartRoutes);
 app.use('/users', usersRoutes);
+app.use('/bid', bidRoutes);
 app.use('/', pagesRoutes);
 app.get('*', (req, res) => {
   res.status(404).send('Page not found');

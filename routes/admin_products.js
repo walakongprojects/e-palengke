@@ -61,7 +61,8 @@ router.get('/add-product', auth.isAdmin, (req, res) => {
       description: description,
       categories: foundCategories,
       price: price,
-      quantity: quantity
+      quantity: quantity,
+      enableBidding: false
     });
   })
   
@@ -69,8 +70,11 @@ router.get('/add-product', auth.isAdmin, (req, res) => {
 
 // Post Product
 router.post('/add-product', auth.isAdmin, (req, res) => {
+  // console.log(req.body, 'bodyyyy')
+  // console.log(Boolean(req.body.enableBidding), 'enableBidding')
 
   var imageF = typeof req.files.image !== "undefined" ? req.files.image.name : "";
+  const enableBidding = Boolean(req.body.enableBidding)
 
   req.checkBody('title', 'Title must have a value').notEmpty();
   req.checkBody('description', 'Description must have a value').notEmpty();
@@ -98,7 +102,8 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
         description: description,
         categories: foundCategories,
         price: "",
-        quantity: quantity
+        quantity: quantity,
+        enableBidding
       });
     });
   } else if(checkQuantity.test(quantity)) {
@@ -110,7 +115,8 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
         description: description,
         categories: foundCategories,
         price: price,
-        quantity: ""
+        quantity: "",
+        enableBidding
       });
     });
   }
@@ -125,7 +131,8 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
         description: description,
         categories: foundCategories,
         price: price,
-        quantity: quantity
+        quantity: quantity,
+        enableBidding
       });
     })
   } else {
@@ -138,7 +145,8 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
             description: description,
             categories: foundCategories,
             price: price,
-            quantity: quantity
+            quantity: quantity,
+            enableBidding
           });
         });
       } else if (err) {
@@ -154,10 +162,11 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
           price: formatPrice,
           category: category,
           quantity: quantity,
-          image: imageF
+          image: imageF,
+          enableBidding
         });
 
-        console.log(product)
+        // console.log(product)
 
         product.save(err => {
           if(err)
@@ -201,6 +210,7 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
 router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
   
   var errors;
+  const enableBidding = Boolean(req.body.enableBidding)
 
   if(req.session.errors)
     errors = req.session.errors
@@ -232,7 +242,8 @@ router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
               quantity: foundProduct.quantity,
               image: foundProduct.image,
               galleryImages: galleryImages,
-              id: foundProduct._id
+              id: foundProduct._id,
+              enableBidding
             });
           }
 
@@ -248,6 +259,7 @@ router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
 router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
 
   var imageF = typeof req.files.image !== "undefined" ? req.files.image.name : "";
+  const enableBidding = Boolean(req.body.enableBidding)
 
   req.checkBody('title', 'Title must have a value').notEmpty();
   req.checkBody('description', 'Description must have a value').notEmpty();
@@ -259,9 +271,11 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
   var description = req.body.description;
   var price = req.body.price;
   var category = req.body.category;
-  var quantity = !!req.body.quantityAdd ? req.body.quantityAdd : req.body.quantityRemove;
+  // var quantity = !!req.body.quantityAdd ? req.body.quantityAdd : req.body.quantityRemove;
+  var quantity = req.body.quantityAdd ? req.body.quantityAdd : req.body.quantityRemove;
 
-  var quantityBool = !!req.body.quantityAdd ? true : false;
+  // var quantityBool = !!req.body.quantityAdd ? true : false;
+  var quantityBool = quantity ? true : false;
   var pimage = req.body.pimage;
   var id = req.params.id
   console.log(req.body.quantityAdd, req.body.quantityRemove)
@@ -280,7 +294,8 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
         description: description,
         categories: foundCategories,
         price: "",
-        quantity: quantity
+        quantity: quantity,
+        enableBidding
       });
     })
   } else if(checkQuantity.test(parseInt(quantity))) {
@@ -292,7 +307,8 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
         description: description,
         categories: foundCategories,
         price: price,
-        quantity: ""
+        quantity: "",
+        enableBidding
       });
     })
   }
@@ -316,14 +332,19 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
           if (err)
             throw (err);
 
-          console.log(foundProductById, quantity)
-
+          console.log(foundProductById, quantity, '111111111')
+          console.log(quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity), '222222')
           foundProductById.title = title;
           foundProductById.slug = slug;
           foundProductById.price = parseFloat(price).toFixed(2);
           foundProductById.description = description;
           foundProductById.category = category;
-          foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
+          if (Number(foundProductById.quantity)) {
+            foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
+          }
+          // foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
+          foundProductById.enableBidding = enableBidding
+        
           if(imageF != "") {
             foundProductById.image = imageF;
           }

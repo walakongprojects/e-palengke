@@ -1,0 +1,57 @@
+<%- include('../partials/adminheader') %>
+
+  <div class="container">
+    <h1 class="display-4">Bids</h1>
+  </div>
+  <br>
+
+  <% if(bids.length != 0) { %>
+
+    
+  <!-- STRIPED TABLE -->
+  <table class="table table-hover table-striped alignmid ">
+      <thead>
+          <tr class="home">
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Category</th>
+              <th>Image</th>
+              <th>Bidder</th>
+              <th>Amount (BID)</th>
+              <th>Quantity (BID)</th>
+              <th>Approve</th>
+              <th>Disapprove</th>
+          </tr>
+      </thead>
+      <tbody>
+        <% bids.forEach(bid => { %>
+          <tr>
+              <td><%= bid.productId.title %></td>
+              <td>&#8369;<%= parseFloat(bid.productId.price).toFixed(2) %></td>
+              <td><%= bid.productId.quantity %></td>
+              <td><%= bid.productId.category %></td>
+              <td>
+                <% if(bid.productId.image == ""){ %>
+                  <img id="noimage" src="/images/noimage.png">
+                <% } else { %>
+                  <img id="noimage" src="/product_images/<%= bid.productId._id%>/<%= bid.productId.image %>">
+                <% } %>
+              </td> 
+              <td><%= bid.user.name %></td>
+              <td>&#8369;<%= parseFloat(bid.price).toFixed(2) %></td>
+              <td><%= bid.quantity %></td>
+ <!--             <td><a href="/admin/products/edit-product/<%= bid.productId._id %>">Edit</a></td>
+              <td><a class="confirmDeletion" href="/admin/products/delete-product/<%= bid.productId._id %>">Delete</a></td> -->
+          </tr>
+          <% }); %>
+      </tbody>
+  </table>
+
+
+  <% } else { %>
+    
+    <h1 class="display-2 text-center">There are no Bids</h1>
+  <% } %>
+  
+<%- include('../partials/adminfooter') %>

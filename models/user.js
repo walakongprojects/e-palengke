@@ -40,8 +40,13 @@ const UserSchema = mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Sale'
         }
+    ],
+    bids: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Bid'
+        }
     ]
-    
 });
 
 module.exports = mongoose.model('User', UserSchema);

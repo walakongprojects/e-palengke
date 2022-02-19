@@ -27,6 +27,7 @@
     "jsonwebtoken": "^8.2.0",
     "method-override": "^2.3.10",
     "mkdirp": "^0.5.1",
+    "moment": "^2.29.1",
     "mongoose": "^5.12.11",
     "nodemailer": "^6.3.0",
     "passport": "^0.4.0",
