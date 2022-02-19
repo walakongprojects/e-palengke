@@ -629,12 +629,12 @@ a {
 
 /* Background Image */
 .bg-image--1 {
-  background-image: url(images/bg/1.jpg);
+  background-image: url(images/bg/palengke.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center; }
 .bg-image--2 {
-  background-image: url(images/bg/2.jpg);
+  background-image: url(images/bg/palengke1.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center; }
@@ -675,25 +675,25 @@ a {
   background-position: center center;
  }
 .bg-image--10 {
-  background-image: url(images/bg/p1.jpeg);
+  background-image: url(images/bg/p1.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 .bg-image--11 {
-  background-image: url(images/bg/p2.jpeg);
+  background-image: url(images/bg/palengke1.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 .bg-image--12 {
-  background-image: url(images/bg/p3.jpeg);
+  background-image: url(images/bg/palengke2.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
 }
 .bg-image--13 {
-  background-image: url(images/bg/p4.jpeg);
+  background-image: url(images/bg/palengke3.jpg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
@@ -3048,7 +3048,7 @@ h3.widget-title-modal {
   font-size: 60px;
 }
 .slide .slider__content h2 {
-  color: #3c3c3c;
+  color: #ffffff;
   font-size: 68px;
   font-family: poppins;
   font-weight: 700;
@@ -3068,7 +3068,7 @@ h3.widget-title-modal {
   margin: 0 0 50px;
   max-width: 725px; }
 .slide .slider__content a.shopbtn {
-  color: #333;
+  color: rgb(255, 255, 255);
   display: inline-block;
   font-size: 14px;
   font-weight: 600;
