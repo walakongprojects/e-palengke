@@ -272,14 +272,23 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
   var price = req.body.price;
   var category = req.body.category;
   // var quantity = !!req.body.quantityAdd ? req.body.quantityAdd : req.body.quantityRemove;
-  var quantity = req.body.quantityAdd ? req.body.quantityAdd : req.body.quantityRemove;
+  var quantity;
+  let addOrRemove = ''
+  if (req.body.quantityAdd) {
+    quantity = req.body.quantityAdd
+    addOrRemove = 'add'
+  } else if (req.body.quantityRemove) {
+    quantity = req.body.quantityRemove
+    addOrRemove = 'remove'
+  } else {
+    quantity = '0'
+    addOrRemove = 'add'
+  }
 
   // var quantityBool = !!req.body.quantityAdd ? true : false;
   var quantityBool = quantity ? true : false;
   var pimage = req.body.pimage;
   var id = req.params.id
-  console.log(req.body.quantityAdd, req.body.quantityRemove)
-  console.log(!!req.body.quantityAdd)
   
   // Regex for checking price if numeric
   var checkNum = /[^0-9.]/;
@@ -332,15 +341,13 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
           if (err)
             throw (err);
 
-          console.log(foundProductById, quantity, '111111111')
-          console.log(quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity), '222222')
           foundProductById.title = title;
           foundProductById.slug = slug;
           foundProductById.price = parseFloat(price).toFixed(2);
           foundProductById.description = description;
           foundProductById.category = category;
           if (Number(foundProductById.quantity)) {
-            foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
+            foundProductById.quantity = addOrRemove === 'add' ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
           }
           // foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
           foundProductById.enableBidding = enableBidding
