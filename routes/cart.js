@@ -9,6 +9,8 @@ const paypal_config = require('../config/paypal');
 // Page Model
 const Products = require('../models/products');
 const Sales = require('../models/sales');
+const User = require('../models/user');
+const Bid = require('../models/bid');
 
 // Get add product to cart
 router.get('/add/:product', (req, res) => {
@@ -129,26 +131,63 @@ router.get('/add-by-id/:id', (req, res) => {
 
 
 // Get checkout page 
-router.get('/checkout', (req, res) => {
+router.get('/checkout', async (req, res) => {
 
   if(req.session.cart && req.session.cart.length == 0) {
     delete req.session.cart;
     res.redirect('/cart/checkout');
   } else {
+    let approvedBids = null
+    if (req.user) {
+      const userDoc = await User.findById(req.user._id).populate('bids').exec()
+      const filteredBids = userDoc.bids.filter(bid => (bid.selected && !bid.isPaid))
+      if (filteredBids.length > 0) {
+        approvedBids = []
+        for (const bid of filteredBids) {
+          if (!bid.paymentMethod) {
+            const productId = await Products.findById(bid.productId)
+            approvedBids.push({
+              bid,
+              productId
+            })
+          }
+        }
+      }
+    }
     res.render('checkout', {
       title: 'Checkout',
-      cart: req.session.cart
+      cart: req.session.cart,
+      approvedBids
     });
   }
 
 });
 
 // Get payment method page
-router.get('/payment-method', (req, res) => {
+router.get('/payment-method', async (req, res) => {
+
+  let approvedBids = null
+  if (req.user) {
+    const userDoc = await User.findById(req.user._id).populate('bids').exec()
+    const filteredBids = userDoc.bids.filter(bid => (bid.selected && !bid.isPaid))
+    if (filteredBids.length > 0) {
+      approvedBids = []
+      for (const bid of filteredBids) {
+        if (!bid.paymentMethod) {
+          const productId = await Products.findById(bid.productId)
+          approvedBids.push({
+            bid,
+            productId
+          })
+        }
+      }
+    }
+  }
 
   res.render('payment-method', {
     title: 'Payment Method',
-    cart: req.session.cart
+    cart: req.session.cart,
+    approvedBids
   })
 }); 
 
@@ -226,9 +265,25 @@ router.get('/clear', (req, res) => {
 });
 
 // COD
-router.post('/cod', auth.isUser, (req,res) => {
+router.post('/cod', auth.isUser, async (req,res) => {
 
-  if(!req.session.cart) {
+  let approvedBids = null
+  if (req.user) {
+    const userDoc = await User.findById(req.user._id).populate('bids').exec()
+    const filteredBids = userDoc.bids.filter(bid => (bid.selected && !bid.isPaid))
+    if (filteredBids.length > 0) {
+      approvedBids = []
+      for (const bid of filteredBids) {
+        const productId = await Products.findById(bid.productId)
+        approvedBids.push({
+          bid,
+          productId
+        })
+      }
+    }
+  }
+
+  if(!req.session.cart && !approvedBids) {
     req.flash('danger', 'Your cart is empty')
     res.redirect('/');
   }
@@ -236,15 +291,35 @@ router.post('/cod', auth.isUser, (req,res) => {
   var cart = req.session.cart;
   var purchases = []
   var total = 0;
-  cart.forEach(prod => {
-    total += parseFloat(prod.price).toFixed(2) * parseInt(prod.qty);
-    purchases.push(prod);
-  })
+
+  if (cart) {
+    cart.forEach(prod => {
+      total += parseFloat(prod.price).toFixed(2) * parseInt(prod.qty);
+      purchases.push(prod);
+    })
+  }
+
+  if (approvedBids && approvedBids.length) {
+    for (const approvedBid of approvedBids) {
+      if (!approvedBid.paymentMethod) {
+        total += parseFloat(approvedBid.bid.price).toFixed(2) * parseInt(approvedBid.bid.quantity);
+        purchases.push({
+          title: approvedBid.productId.slug,
+          qty: approvedBid.bid.quantity,
+          price: parseFloat(approvedBid.bid.price).toFixed(2),
+          image: `/product_images/${approvedBid.productId._id}/${approvedBid.productId.image}`,
+          category: approvedBid.productId.category,
+          slug: approvedBid.productId.slug,
+          bidId: approvedBid.bid._id
+        })
+      }
+    }
+  }
 
   var myPromises = [];
 
   // Updating Invetory
-  cart.forEach((prod) => {
+  purchases.forEach((prod) => {
     console.log(prod.title, prod.qty)
     Products.findOne({slug: prod.slug})
       .then(prod1 => {
@@ -361,9 +436,25 @@ router.post('/cod', auth.isUser, (req,res) => {
         terms: null
       };
     
-      generateInvoice(invoice, __dirname + `/files/invoice-${createdSale._id}.pdf`, () => {
+      generateInvoice(invoice, __dirname + `/files/invoice-${createdSale._id}.pdf`, async () => {
         console.log(`Saved invoice`);
         delete req.session.cart;
+
+        if (approvedBids && approvedBids.length) {
+          const updateQueries = approvedBids.map(approvedBid => ({
+            updateOne: {
+              filter: { _id: approvedBid.bid._id },
+              update: { 
+                $set: {
+                  paymentMethod: 'cod'
+                }
+              }
+            }
+          }))
+          console.log(updateQueries, 'updateQueries')
+          await Bid.bulkWrite(updateQueries)
+        }
+
         req.flash('success', 'Successfully bought item(s)');
         res.redirect('/cart/checkout');
       }, function(error) {
@@ -379,11 +470,26 @@ router.post('/cod', auth.isUser, (req,res) => {
 });
 
 // Paypal
-router.post('/pay', auth.isUser, (req, res) => {
+router.post('/pay', auth.isUser, async (req, res) => {
+
+  let approvedBids = null
+  if (req.user) {
+    const userDoc = await User.findById(req.user._id).populate('bids').exec()
+    const filteredBids = userDoc.bids.filter(bid => (bid.selected && !bid.isPaid))
+    if (filteredBids.length > 0) {
+      approvedBids = []
+      for (const bid of filteredBids) {
+        const productId = await Products.findById(bid.productId)
+        approvedBids.push({
+          bid,
+          productId
+        })
+      }
+    }
+  }
 
   var cart = req.session.cart;
-
-  if(!req.session.cart) {
+  if(!req.session.cart && !approvedBids) {
     req.flash('danger', 'Your cart is empty')
     res.redirect('/');
   }
@@ -393,17 +499,35 @@ router.post('/pay', auth.isUser, (req, res) => {
   var p = 0
   var shippingFee = 100;
 
-  cart.forEach(product => {
-    p = +(parseFloat(product.price).toFixed(2) * product.qty)
-    total += p;
-    myPurchases.push({
-      "name": product.title,
-                "price": product.price,
-                "currency": "PHP",
-                "quantity": product.qty
+  if (cart) {
+    cart.forEach(product => {
+      p = +(parseFloat(product.price).toFixed(2) * product.qty)
+      total += p;
+      myPurchases.push({
+        "name": product.title,
+        "price": product.price,
+        "currency": "PHP",
+        "quantity": product.qty
+      })
+      p = 0;
     })
-    p = 0;
-  })
+  }
+
+  if (approvedBids && approvedBids.length) {
+    for (const approvedBid of approvedBids) {
+      if (!approvedBid.paymentMethod) {
+        p = +(parseFloat(approvedBid.bid.price).toFixed(2) * approvedBid.bid.quantity)
+        total += p;
+        myPurchases.push({
+          "name": approvedBid.productId.title,
+          "price": approvedBid.bid.price,
+          "currency": "PHP",
+          "quantity": approvedBid.bid.quantity
+        })
+        p = 0;
+      }
+    }
+  }
 
   const create_payment_json = {
     "intent": "sale",
@@ -444,7 +568,23 @@ router.post('/pay', auth.isUser, (req, res) => {
 
 });
 
-router.get('/success', (req, res) => {
+router.get('/success', async (req, res) => {
+
+  let approvedBids = null
+  if (req.user) {
+    const userDoc = await User.findById(req.user._id).populate('bids').exec()
+    const filteredBids = userDoc.bids.filter(bid => (bid.selected && !bid.isPaid))
+    if (filteredBids.length > 0) {
+      approvedBids = []
+      for (const bid of filteredBids) {
+        const productId = await Products.findById(bid.productId)
+        approvedBids.push({
+          bid,
+          productId
+        })
+      }
+    }
+  }
 
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
@@ -454,17 +594,35 @@ router.get('/success', (req, res) => {
   var myPurchases = [];
   var p = 0
   
-  cart.forEach(product => {
-    p = +(parseFloat(product.price).toFixed(2) * product.qty)
-    total += p;
-    myPurchases.push({
-      "name": product.title,
-                "price": product.price,
-                "currency": "PHP",
-                "quantity": product.qty
+  if (cart) {
+    cart.forEach(product => {
+      p = +(parseFloat(product.price).toFixed(2) * product.qty)
+      total += p;
+      myPurchases.push({
+        "name": product.title,
+        "price": product.price,
+        "currency": "PHP",
+        "quantity": product.qty
+      })
+      p = 0;
     })
-    p = 0;
-  })
+  }
+
+  if (approvedBids && approvedBids.length) {
+    for (const approvedBid of approvedBids) {
+      if (!approvedBid.paymentMethod) {
+        p = +(parseFloat(approvedBid.bid.price).toFixed(2) * approvedBid.bid.quantity)
+        total += p;
+        myPurchases.push({
+          "name": approvedBid.productId.title,
+          "price": approvedBid.bid.price,
+          "currency": "PHP",
+          "quantity": approvedBid.bid.quantity
+        })
+        p = 0;
+      }
+    }
+  }
 
   const execute_payment_json = {
     "payer_id": payerId,
@@ -520,15 +678,35 @@ router.get('/success', (req, res) => {
         var cart = req.session.cart;
         var purchases = []
         var total = 0;
-        cart.forEach(prod => {
-          total += parseFloat(prod.price).toFixed(2) * parseInt(prod.qty);
-          purchases.push(prod);
-        })
+
+        if (cart) {
+          cart.forEach(prod => {
+            total += parseFloat(prod.price).toFixed(2) * parseInt(prod.qty);
+            purchases.push(prod);
+          })
+        }
 
         var myPromises = [];
 
+        if (approvedBids && approvedBids.length) {
+          for (const approvedBid of approvedBids) {
+            if (!approvedBid.paymentMethod) {
+              total += parseFloat(approvedBid.bid.price).toFixed(2) * parseInt(approvedBid.bid.quantity);
+              purchases.push({
+                title: approvedBid.productId.slug,
+                qty: approvedBid.bid.quantity,
+                price: parseFloat(approvedBid.bid.price).toFixed(2),
+                image: `/product_images/${approvedBid.productId._id}/${approvedBid.productId.image}`,
+                category: approvedBid.productId.category,
+                slug: approvedBid.productId.slug,
+                bidId: approvedBid.bid._id
+              })
+            }
+          }
+        }
+
         // Updating Invetory
-        cart.forEach((prod) => {
+        purchases.forEach((prod) => {
           console.log(prod.title, prod.qty)
           Products.findOne({slug: prod.slug})
             .then(prod1 => {
@@ -589,9 +767,25 @@ router.get('/success', (req, res) => {
               
             };
           
-            generateInvoice(invoice, __dirname + `/files/invoice-${createdSale._id}.pdf`, () => {
+            generateInvoice(invoice, __dirname + `/files/invoice-${createdSale._id}.pdf`, async () => {
               console.log(`Saved invoice`);
               delete req.session.cart;
+
+              if (approvedBids && approvedBids.length) {
+                const updateQueries = approvedBids.map(approvedBid => ({
+                  updateOne: {
+                    filter: { _id: approvedBid.bid._id },
+                    update: { 
+                      $set: {
+                        paymentMethod: 'paypal'
+                      }
+                    }
+                  }
+                }))
+                console.log(updateQueries, 'updateQueries')
+                await Bid.bulkWrite(updateQueries)
+              }
+
               req.flash('success', 'Successfully bought item(s)');
               res.redirect('/cart/checkout');
             }, function(error) {

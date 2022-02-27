@@ -106,8 +106,9 @@
                                             <a class="tocart" href="/cart/add/<%= product.slug %>" title="Add to Cart">Add to Cart</a>
                                             <% if (product.enableBidding && userCurrentBid === null) { %>
                                                 <a class="tocart" data-toggle="modal" data-target="#bid">Bid</button>
-                                            <% } else { %>
+                                            <% } else if (product.enableBidding && userCurrentBid !== null) { %>
                                                 <a class="tocart" data-toggle="modal" data-target="#bid">Edit Bid</button>
+                                            <% } else { %>
                                             <% } %>
                                         </div>
                                         

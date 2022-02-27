@@ -1,6 +1,6 @@
 <% include ./partials/header %>
 
-<% if(typeof cart !== 'undefined') { %>
+<% if(typeof cart !== 'undefined' || (approvedBids && approvedBids.length)) { %>
 
   <!-- Start Checkout Area -->
   <section class="wn__checkout__area section-padding--lg bg__white">
@@ -164,13 +164,23 @@
               </ul>
               <ul class="order_product">
                 <% var total = 0 %>
-                  <% cart.forEach(product => { %>
-                  <% var subTotal = parseFloat(product.price * product.qty).toFixed(2) %>
-                  <% total += +subTotal %>
-                  <li><%= product.title %> × <%= product.qty %><span>&#8369;<%= subTotal %></span></li>
-                <% }); %>
-                <% var orderTotal = 100 + total %>
 
+                  <% if (cart) { %>
+                    <% cart.forEach(product => { %>
+                      <% var subTotal = parseFloat(product.price * product.qty).toFixed(2) %>
+                      <% total += +subTotal %>
+                      <li><%= product.title %> × <%= product.qty %><span>&#8369;<%= subTotal %></span></li>
+                    <% }); %>
+                  <% } %>
+                  <% if (approvedBids) { %>
+                    <% approvedBids.forEach(approvedBid => { %>
+                      <% var subTotalBid = parseFloat(approvedBid.bid.price * approvedBid.bid.quantity).toFixed(2) %>
+                      <% total += +subTotalBid %>
+                      <li><%= approvedBid.productId.title %> × <%= approvedBid.bid.quantity %><span>&#8369;<%= subTotalBid %></span></li>
+                    <% }); %>
+                  <% } %>
+
+                <% var orderTotal = 100 + total %>
               </ul>
               <ul class="shipping__method">
                 <li>Cart Subtotal <span>&#8369;<%= parseFloat(total).toFixed(2) %></span></li>

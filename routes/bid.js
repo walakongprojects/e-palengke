@@ -14,6 +14,11 @@ router.get('/', async (req, res) => {
 	res.json({ result: bidDocs })
 })
 
+router.get('/:_bidId', async (req, res) => {
+	const { _bidId } = req.params
+	const bidDoc = await Bid.findById({ _id: _bidId})
+})
+
 router.post('/', async (req, res) => {
 	try {
 		const { price, quantity } = req.body
@@ -60,10 +65,11 @@ router.post('/', async (req, res) => {
 	}
 })
 
+
+
 router.post('/edit/:id', async (req, res) => {
 	try {
 		const { id } = req.params
-		console.log(id)
 		const { price, quantity } = req.body
 		const productDoc = await Product.findById(req.body.productId)
 		const userDoc = await User.findById(req.user._id)
@@ -87,6 +93,7 @@ router.post('/edit/:id', async (req, res) => {
 		req.flash('success', 'Successfully update the bid in product.');
 		res.redirect(`/products/${productDoc.category}/${productDoc.slug}`)
 	} catch(err) {
+		req.flash('danger', 'Something went wrong when editing the bid');
 		throw(err)
 	}
 
@@ -139,9 +146,6 @@ router.post('/delete/:id', async (req, res) => {
 
 })
 
-router.get('/:_bidId', async (req, res) => {
-	const { _bidId } = req.params
-	const bidDoc = await Bid.findById({ _id: _bidId})
-})
+
 
 module.exports = router;

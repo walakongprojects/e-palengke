@@ -4,4 +4,5 @@ npm-debug.log
 /*.env
 public/product_images/*
 !public/product_images/.gitkeep
-routes/files
+routes/files/*
+!routes/files/.gitkeep

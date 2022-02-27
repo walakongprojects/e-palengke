@@ -29,6 +29,10 @@ const bidSchema = mongoose.Schema({
 	isPaid: {
 		type: Boolean,
 		default: false
+	},
+	paymentMethod: {
+		type: String,
+		default: ''
 	}
 })
 
