@@ -11,6 +11,7 @@ const Products = require('../models/products');
 const Sales = require('../models/sales');
 const User = require('../models/user');
 const Bid = require('../models/bid');
+const qcBarangays = require('../meta/qcBarangays');
 
 // Get add product to cart
 router.get('/add/:product', (req, res) => {
@@ -187,7 +188,8 @@ router.get('/payment-method', async (req, res) => {
   res.render('payment-method', {
     title: 'Payment Method',
     cart: req.session.cart,
-    approvedBids
+    approvedBids,
+    barangays: qcBarangays
   })
 }); 
 
