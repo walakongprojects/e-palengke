@@ -30,10 +30,12 @@ const UserSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    barangay: {
+        type: String,
+        required: true
+    },
     city: {
         type: String,
-        required
-        : true
     },
     bought: [
         {

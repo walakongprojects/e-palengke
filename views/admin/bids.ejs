@@ -20,8 +20,7 @@
               <th>Bidder</th>
               <th>Amount (BID)</th>
               <th>Quantity (BID)</th>
-              <th>Approve</th>
-              <th>Disapprove</th>
+              <th class="text-center" colspan="2">Actions</th>
           </tr>
       </thead>
       <tbody>
@@ -41,8 +40,17 @@
               <td><%= bid.user.name %></td>
               <td>&#8369;<%= parseFloat(bid.price).toFixed(2) %></td>
               <td><%= bid.quantity %></td>
- <!--             <td><a href="/admin/products/edit-product/<%= bid.productId._id %>">Edit</a></td>
-              <td><a class="confirmDeletion" href="/admin/products/delete-product/<%= bid.productId._id %>">Delete</a></td> -->
+              <td><%= bid.quantity %></td>
+              <% if (bid.selected) { %>
+                <% if (bid.isPaid) { %>
+                  <td class="text-center text-success">Approved (Paid)</td>
+                <% } else { %>
+                  <td class="text-center text-success">Approved <span class="text-warning">(Not yet paid)</span></td>
+                <% } %>
+              <% } else { %>
+                <td><a class="text-success" href="/admin/bids/approve/<%= bid._id %>">Approve</a></td>
+                <td><a class="text-danger" href="/admin/bids/disapprove/<%= bid._id %>">Disapprove</a></td>
+              <% } %>
           </tr>
           <% }); %>
       </tbody>
