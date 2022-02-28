@@ -104,7 +104,7 @@
 
                                         <div class="addtocart__actions">
                                             <a class="tocart" href="/cart/add/<%= product.slug %>" title="Add to Cart">Add to Cart</a>
-                                            <% if (product.enableBidding && userCurrentBid === null) { %>
+                                            <% if (product.enableBidding && userCurrentBid === null && currentUser) { %>
                                                 <a class="tocart" data-toggle="modal" data-target="#bid">Bid</button>
                                             <% } else if (product.enableBidding && userCurrentBid !== null) { %>
                                                 <a class="tocart" data-toggle="modal" data-target="#bid">Edit Bid</button>

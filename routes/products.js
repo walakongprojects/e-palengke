@@ -60,8 +60,11 @@ router.get('/:category/:product', (req, res) => {
       if (currentUser) {
         userCurrentBid = await Bid.findOne({
           productId: foundProduct._id,
-          user: req.user._id
+          user: req.user._id,
+          isPaid: false,
+          paymentMethod: ''
         }).populate('user').exec()
+        console.log(userCurrentBid, 'userCurrentBid')
       }
     }
     
@@ -71,6 +74,8 @@ router.get('/:category/:product', (req, res) => {
       if(err)
         throw(err)
       
+      console.log(userCurrentBid, 'userCurrentBid two')
+      console.log(req.user, 'req.user')
       Product.find({})
         .then(foundProducts => {
           res.render('product', {
@@ -79,6 +84,7 @@ router.get('/:category/:product', (req, res) => {
             galleryImages: galleryImages,
             userCurrentBid,
             products: foundProducts,
+            currentUser: req.user
           })
         })
         .catch(err => console.log(err))

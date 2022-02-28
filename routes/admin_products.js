@@ -210,7 +210,7 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
 router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
   
   var errors;
-  const enableBidding = Boolean(req.body.enableBidding)
+  // const enableBidding = Boolean(req.body.enableBidding)
 
   if(req.session.errors)
     errors = req.session.errors
@@ -232,6 +232,7 @@ router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
           else {
             galleryImages = files;
 
+            console.log(foundProduct.enableBidding, 'enableBidding')
             res.render('admin/edit_product', {
               title: foundProduct.title,
               description: foundProduct.description,
@@ -243,7 +244,7 @@ router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
               image: foundProduct.image,
               galleryImages: galleryImages,
               id: foundProduct._id,
-              enableBidding
+              enableBidding: foundProduct.enableBidding ? foundProduct.enableBidding : false
             });
           }
 

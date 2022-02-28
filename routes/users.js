@@ -28,12 +28,12 @@ router.post('/register', auth.isLoggedIn,function (req, res) {
     var username = req.body.username;
     var address = req.body.address;
     var phone_number = req.body.phone_num;
-    var city = req.body.city;
+    var barangay = req.body.barangay;
     var password = req.body.password;
     var password2 = req.body.password2;
 
     req.checkBody('name', 'Name is required!').notEmpty();
-    req.checkBody('city', 'City is required!').notEmpty();
+    req.checkBody('barangay', 'Barangay is required!').notEmpty();
     req.checkBody('phone_num', 'Phone Number is required!').notEmpty();
     req.checkBody('address', 'address is required!').notEmpty();
     req.checkBody('email', 'Email is required!').isEmail();
@@ -67,7 +67,7 @@ router.post('/register', auth.isLoggedIn,function (req, res) {
                     username: username,
                     password: password,
                     address:address,
-                    city: city,
+                    barangay: barangay,
                     phone_number: phone_number,
                     admin: 0
                 });
