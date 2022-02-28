@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
 			throw('There is no product found.')
 		}
 
-		await Bid.create({
+		const createdBidDoc = await Bid.create({
 			price,
 			quantity,
 			user: userDoc._id,
@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
 			},
 			{
 				$push: {
-					bids: productDoc._id
+					bids: createdBidDoc._id
 				}
 			}
 		)
