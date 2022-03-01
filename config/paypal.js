@@ -8,10 +8,10 @@ module.exports = {
   urlDev,
 
   // dev
-  // success_url : 'http://localhost:2000/cart/success',
-  // cancel_url : 'http://localhost:2000/cart/cancel',
+  success_url : 'http://localhost:2000/cart/success',
+  cancel_url : 'http://localhost:2000/cart/cancel',
 
   // prod
-  success_url : `${urlProd}/cart/success`,
-  cancel_url : `${urlProd}/cart/cancel`
+  // success_url : `${urlProd}/cart/success`,
+  // cancel_url : `${urlProd}/cart/cancel`
 }

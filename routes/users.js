@@ -461,7 +461,7 @@ router.post('/forgot-password', (req, res) => {
                         <br><br>
                         <p>Click the link to change your password.</p>
                         <br>
-                        <a href="${paypal_config.urlProd}/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
+                        <a href="${paypal_config.urlDev}/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
                     };
                     transporter.sendMail(mailOptions)
                         .then(info => {
