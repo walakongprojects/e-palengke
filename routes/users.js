@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const auth = require('../config/auth'); 
 const userAuth = require('../config/userauths');
+const paypal_config = require('../config/paypal');
 
 // Get Models
 const User = require('../models/user');
@@ -460,7 +461,7 @@ router.post('/forgot-password', (req, res) => {
                         <br><br>
                         <p>Click the link to change your password.</p>
                         <br>
-                        <a href="${urlProd}/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
+                        <a href="${paypal_config.urlProd}/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
                     };
                     transporter.sendMail(mailOptions)
                         .then(info => {
