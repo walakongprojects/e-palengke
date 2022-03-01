@@ -3,6 +3,7 @@ const router = require('express').Router();
 const Bid = require('../models/bid');
 
 // router.get('/', auth.allAdmin, (req, res) => {
+console.log('test')
 router.get('/', async (req, res) => {
 	const bidDocs = await Bid.find({}).populate([ 'user', 'productId' ]).exec()
 
