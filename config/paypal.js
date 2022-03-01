@@ -1,8 +1,11 @@
 const urlProd = 'https://e-palengke.herokuapp.com'
+const urlDev = 'http://localhost:2000'
 
 module.exports = {
   client_id : 'AQKFyQ5slFTCzJK4ptOlf-KApv1K4eczFM5ILeifN9FXLs8amP-k9uTj9Msj9LgTUwPbDMFTnhuDw3ZM',
   client_secret : 'EFLnIV3aRBUu3clfkoeQZK3YwaJ3EsZwTZGfTCXXtN9yoer42rptHtt7onnDDTilB4bq6NL9qlH59fvZ',
+  urlProd,
+  urlDev,
 
   // dev
   // success_url : 'http://localhost:2000/cart/success',

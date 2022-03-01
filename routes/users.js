@@ -455,12 +455,12 @@ router.post('/forgot-password', (req, res) => {
                     const mailOptions = {
                         from: userAuth.uName, // sender address
                         to: email, // list of receivers
-                        subject: 'Gulapagadgets - Forgot Password', // Subject line
+                        subject: 'E-Palengke - Forgot Password', // Subject line
                         html: `<h2>Hi ${foundUser.name}</h2>
                         <br><br>
                         <p>Click the link to change your password.</p>
                         <br>
-                        <a href="http://localhost:2000/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
+                        <a href="${urlProd}/users/forgot-password/${foundUser._id}/${createdFoundPassword._id}">Change password</a>`// plain text body
                     };
                     transporter.sendMail(mailOptions)
                         .then(info => {
