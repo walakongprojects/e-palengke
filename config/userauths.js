@@ -1,5 +1,5 @@
 module.exports = {
   uName: 'zxcvbnmarcord@gmail.com',
-  pW: 'qu3sT?on',
+  pW: 'HAHAHA.XD',
   tMail: 'gmail'
 }
