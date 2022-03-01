@@ -39,6 +39,20 @@ var productSchema = mongoose.Schema({
   times_viewed: {
     type: Number
   },
+  enableBidding: {
+    type: Boolean,
+    default: false
+  },
+  bidStartDate: {
+    type: Date,
+  },
+  bidders: {
+    type: [ mongoose.Schema.Types.ObjectId ],
+    default: []
+  },
+  bidEndDate: {
+    type: Date,
+  },
   color: []
 });
 

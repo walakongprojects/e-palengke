@@ -5,6 +5,7 @@ const fs = require('fs-extra');
 const Product = require('../models/products');
 // Category Model
 const Category = require('../models/category');
+const Bid = require('../models/bid');
 
 
 // Get all products
@@ -44,13 +45,28 @@ router.get('/:category', (req, res) => {
 router.get('/:category/:product', (req, res) => {
 
   var galleryImages = null;
-  console.log(req.params)
+  let userCurrentBid = null;
 
-  Product.findOne({slug: req.params.product}, (err, foundProduct) => {
+  Product.findOne({slug: req.params.product}, async (err, foundProduct) => {
     if(err)
       throw(err)
-    
-    console.log(foundProduct)
+
+    if (foundProduct.bidders && foundProduct.bidders.length !== 0 && req.user) {
+      const [ currentUser ] = foundProduct.bidders.filter(bidder => {
+        if (bidder.toString() === req.user._id.toString()) {
+          return req.user._id
+        }
+      })
+      if (currentUser) {
+        userCurrentBid = await Bid.findOne({
+          productId: foundProduct._id,
+          user: req.user._id,
+          isPaid: false,
+          paymentMethod: ''
+        }).populate('user').exec()
+        console.log(userCurrentBid, 'userCurrentBid')
+      }
+    }
     
     var galleryDir = `public/product_images/${foundProduct._id}/gallery`;
 
@@ -58,14 +74,18 @@ router.get('/:category/:product', (req, res) => {
       if(err)
         throw(err)
       
+      console.log(userCurrentBid, 'userCurrentBid two')
+      console.log(req.user, 'req.user')
       Product.find({})
         .then(foundProducts => {
           res.render('product', {
             title: foundProduct.title,
             product: foundProduct,
             galleryImages: galleryImages,
-            products: foundProducts
-          });
+            userCurrentBid,
+            products: foundProducts,
+            currentUser: req.user
+          })
         })
         .catch(err => console.log(err))
       galleryImages = files;

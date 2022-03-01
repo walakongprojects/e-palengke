@@ -10,6 +10,7 @@ const userAuth = require('../config/userauths');
 const User = require('../models/user');
 const Sale = require('../models/sales');
 const ForgotPassword = require('../models/forgotpassword');
+const qcBarangays = require('../meta/qcBarangays')
 
 router.get('/register', auth.isLoggedIn, function (req, res) {
 
@@ -27,12 +28,12 @@ router.post('/register', auth.isLoggedIn,function (req, res) {
     var username = req.body.username;
     var address = req.body.address;
     var phone_number = req.body.phone_num;
-    var city = req.body.city;
+    var barangay = req.body.barangay;
     var password = req.body.password;
     var password2 = req.body.password2;
 
     req.checkBody('name', 'Name is required!').notEmpty();
-    req.checkBody('city', 'City is required!').notEmpty();
+    req.checkBody('barangay', 'Barangay is required!').notEmpty();
     req.checkBody('phone_num', 'Phone Number is required!').notEmpty();
     req.checkBody('address', 'address is required!').notEmpty();
     req.checkBody('email', 'Email is required!').isEmail();
@@ -66,7 +67,7 @@ router.post('/register', auth.isLoggedIn,function (req, res) {
                     username: username,
                     password: password,
                     address:address,
-                    city: city,
+                    barangay: barangay,
                     phone_number: phone_number,
                     admin: 0
                 });
@@ -172,7 +173,8 @@ router.post('/register-from-billing',function (req, res) {
 router.get('/register-admin', auth.isAdmin, function (req, res) {
 
     res.render('admin/register', {
-        title: 'Register new admin'
+        title: 'Register new admin',
+        barangays: qcBarangays
     });
 
 });
@@ -185,7 +187,7 @@ router.post('/register-admin', auth.isAdmin,function (req, res) {
     var username = req.body.username;
     var address = req.body.address;
     var phone_number = req.body.phone_num;
-    var city = req.body.city;
+    var barangay = req.body.barangay;
     var password = req.body.password;
     var password2 = req.body.password2;
     var admin = req.body.admin;
@@ -199,7 +201,7 @@ router.post('/register-admin', auth.isAdmin,function (req, res) {
     req.checkBody('name', 'Name is required!').notEmpty();
     req.checkBody('address', 'Address is required!').notEmpty();
     req.checkBody('phone_num', 'Phone Number is required!').notEmpty();
-    req.checkBody('city', 'City is required!').notEmpty();
+    req.checkBody('barangay', 'Barangay is required!').notEmpty();
     req.checkBody('email', 'Email is required!').isEmail();
     req.checkBody('username', 'Username is required!').notEmpty();
     req.checkBody('password', 'Password is required!').notEmpty();
@@ -228,7 +230,7 @@ router.post('/register-admin', auth.isAdmin,function (req, res) {
                     password: password,
                     address: address,
                     phone_number: phone_number,
-                    city: city,
+                    barangay: barangay,
                     admin: admin
                 });
 
@@ -260,7 +262,8 @@ router.get('/login', auth.isLoggedIn, function (req, res) {
     if (res.locals.user) res.redirect('/');
     
     res.render('login', {
-        title: 'Log in'
+        title: 'Log in',
+        barangays: qcBarangays
     });
 
 });
@@ -351,7 +354,8 @@ router.get('/profile/:username/edit', auth.isUser, (req, res) => {
             }
             res.render('edit-user-profile', {
                 foundUser,
-                title: `${foundUser.name}'s Profile`
+                title: `${foundUser.name}'s Profile`,
+                barangays: qcBarangays
             })
         })
         .catch(err => { 
@@ -367,12 +371,12 @@ router.post('/profile/:username/edit', auth.isUser, (req, res) => {
     var name = req.body.name;
     var email = req.body.email;
     var address = req.body.address;
-    var city = req.body.city;
+    var barangay = req.body.barangay;
     var phone_number = req.body.phone_num;
 
 
     req.checkBody('name', 'Name is required!').notEmpty();
-    req.checkBody('city', 'City / Municipality is required!').notEmpty();
+    req.checkBody('barangay', 'Barangay').notEmpty();
     req.checkBody('address', 'Address is required!').notEmpty();
     req.checkBody('email', 'Email is required!').isEmail();
  
@@ -397,7 +401,7 @@ router.post('/profile/:username/edit', auth.isUser, (req, res) => {
                     name: name,
                     email: email,
                     address:address,
-                    city: city,
+                    barangay: barangay,
                     phone_number: phone_number,
                 }
 

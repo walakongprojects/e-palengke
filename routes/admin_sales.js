@@ -3,6 +3,7 @@ const https   = require("https");
 const fs      = require("fs");
 // Get Page Model
 const Sales = require('../models/sales');
+const Bid = require('../models/bid');
 
 const auth = require('../config/auth')
 
@@ -154,17 +155,69 @@ router.post('/:id/delivered', auth.isAdmin, (req, res) => {
 
 });
 
-router.post('/:id/paid', auth.isAdmin, (req, res) => {
+router.post('/:id/paid', auth.isAdmin, async (req, res) => {
 
-  var id = req.params.id;
+  const id = req.params.id;
 
-  Sales.updateOne({_id: id}, {$set: {"paid": true}})
-    .then(updatedProduct => {
+  try {
+    const salesDoc = await Sales.findById(id)
+    salesDoc.paid = true
+    await salesDoc.save()
+
+    const updateQueries = []
+    for (const product of salesDoc.product) {
+      if (product.bidId) {
+        updateQueries.push({
+          updateOne: {
+            filter: { _id: product.bidId },
+            update: {
+              $set: {
+                isPaid: true
+              }
+            }
+          }
+        })
+      }
+    }
+
+    if (updateQueries.length) {
+      await Bid.bulkWrite(updateQueries)
+    }
+
+    req.flash('success', 'Successfully updated transaction to "Paid"');
+    res.redirect(`/admin/sales/${id}`)
+  } catch(error) {
+    console.log(error)
+  }
+
+  // Sales.updateOne({_id: id}, {$set: {"paid": true}}, { returnOriginal: false })
+  //   .then(async (updatedProduct) => {
+  //     console.log(updatedProduct, 'updatedProduct')
+  //     console.log(updatedProduct.product, 'updatedProduct.product')
+
+  //     for (const product of updatedProduct.product) {
+  //       if (product.bidId) {
+  //         updateQueries.push({
+  //           updateOne: {
+  //             filter: { _id: product.bidId },
+  //             update: {
+  //               $set: {
+  //                 isPaid: true
+  //               }
+  //             }
+  //           }
+  //         })
+  //       }
+  //     }
+
+  //     if (updateQueries.length) {
+  //       await Bid.bulkWrite(updateQueries)
+  //     }
       
-      req.flash('success', 'Successfully updated transaction to "Paid"');
-      res.redirect(`/admin/sales/${id}`)
-    })
-    .catch(err => console.log(err))
+  //     req.flash('success', 'Successfully updated transaction to "Paid"');
+  //     res.redirect(`/admin/sales/${id}`)
+  //   })
+  //   .catch(err => console.log(err))
 
 });
 

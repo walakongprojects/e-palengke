@@ -20,14 +20,23 @@
     <div class="form-group">
       <label for="description">Category</label>
       <select name="category" class="form-control">
-        <% categories.forEach(category => { %>
-          <option value="<%= category.slug %>"
-            <% if(category.slug == category){ %>
-              selected="selected"
+        <% categories.forEach(currentCategory => { %>
+            <% if (category === currentCategory.slug) { %>
+              <option value="<%= currentCategory.slug %>" selected><%= currentCategory.title %></option>
+            <% } else { %>
+              <option value="<%= currentCategory.slug %>"><%= currentCategory.title %></option>
             <% } %>
-            ><%= category.title %></option>
         <% }); %>
       </select>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Enable Bidding</label>
+      <% if (enableBidding) { %>
+        <input type="checkbox" name="enableBidding" id="enableBidding" value="<%= enableBidding %>" class="ml-2" placeholder="Price" checked>
+      <% } else { %>
+        <input type="checkbox" name="enableBidding" id="enableBidding" value="<%= enableBidding %>" class="ml-2" placeholder="Price">
+      <% } %>
     </div>
 
     <div class="form-group">

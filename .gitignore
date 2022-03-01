@@ -2,5 +2,7 @@ node_modules
 npm-debug.log
 .DS_Store
 /*.env
-public/product_images/
-routes/files
+public/product_images/*
+!public/product_images/.gitkeep
+routes/files/*
+!routes/files/.gitkeep
