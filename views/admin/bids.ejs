@@ -42,11 +42,7 @@
               <td><%= bid.quantity %></td>
               <td><%= bid.quantity %></td>
               <% if (bid.selected) { %>
-                <% if (bid.isPaid) { %>
-                  <td class="text-center text-success">Approved (Paid)</td>
-                <% } else { %>
-                  <td class="text-center text-success">Approved <span class="text-warning">(Not yet paid)</span></td>
-                <% } %>
+                  <td class="text-center text-success">Approved</td>
               <% } else { %>
                 <td><a class="text-success" href="/admin/bids/approve/<%= bid._id %>">Approve</a></td>
                

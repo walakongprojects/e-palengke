@@ -1,4 +1,4 @@
-const urlProd = 'https://e-palengke.herokuapp.com/'
+const urlProd = 'https://e-palengke.herokuapp.com'
 
 module.exports = {
   client_id : 'AQKFyQ5slFTCzJK4ptOlf-KApv1K4eczFM5ILeifN9FXLs8amP-k9uTj9Msj9LgTUwPbDMFTnhuDw3ZM',
