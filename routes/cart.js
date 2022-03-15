@@ -33,7 +33,8 @@ router.get('/add/:product', (req, res) => {
         price: parseFloat(foundProduct.price).toFixed(2),
         image: `/product_images/${foundProduct._id}/${foundProduct.image}`,
         category: foundProduct.category,
-        slug: foundProduct.slug
+        slug: foundProduct.slug,
+        measurement: foundProduct.measurement
       });
     } else {
       var cart = req.session.cart;
@@ -92,7 +93,8 @@ router.get('/add-by-id/:id', (req, res) => {
         price: parseFloat(foundProduct.price).toFixed(2),
         image: `/product_images/${foundProduct._id}/${foundProduct.image}`,
         category: foundProduct.category,
-        slug: foundProduct.slug
+        slug: foundProduct.slug,
+        measurement: foundProduct.measurement
       });
     } else {
       var cart = req.session.cart;
@@ -116,7 +118,8 @@ router.get('/add-by-id/:id', (req, res) => {
           price: parseFloat(foundProduct.price).toFixed(2),
           image: `/product_images/${foundProduct._id}/${foundProduct.image}`,
           category: foundProduct.category,
-        slug: foundProduct.slug
+          slug: foundProduct.slug,
+          measurement: foundProduct.measurement
         });
       }
     }
@@ -626,12 +629,19 @@ router.get('/success', async (req, res) => {
     }
   }
 
+  const shippingFee = 100
+
   const execute_payment_json = {
     "payer_id": payerId,
     "transactions": [{
         "amount": {
             "currency": "PHP",
-            "total": total
+            // "total": total,
+            "total": (total + shippingFee),
+            "details": {
+              "subtotal" : total,
+              "shipping": shippingFee
+            }
         }
     }]
   };
@@ -676,6 +686,10 @@ router.get('/success', async (req, res) => {
         console.log(error.response);
         throw error;
     } else {
+        const [ transaction ] = payment.transactions
+        const [ resources ] = transaction.related_resources
+        console.log(resources, 'resources')
+
         // console.log(JSON.stringify(payment));
         var cart = req.session.cart;
         var purchases = []
@@ -728,7 +742,9 @@ router.get('/success', async (req, res) => {
           address: req.user.address,
           city: req.user.city,
           totalWithShipping: (total + 100),
-          paid: true
+          paid: true,
+          paypalTransactionId: resources.sale.id,
+          payerId: payment.payer.payer_info.payer_id
         };
       
         Sales.create(sales, (err, createdSale) => {
@@ -806,5 +822,24 @@ router.get('/cancel', (req, res) => {
   req.flash('danger', 'Transaction is cancelled');
   res.redirect('/cart/checkout');
 });
+
+router.post('/cancelOrder/:_id', async (req, res) => {
+  const { _id } = req.params
+  const { cancelReason } = req.body
+
+  if (!cancelReason) {
+    req.flash('danger', 'Cancel reason is required.')
+    res.redirect(`/users/product-status/${req.user.username}`)
+  }
+
+  const salesDoc = await Sales.findById(_id)
+
+  salesDoc.cancelReason = cancelReason
+  salesDoc.cancelStatus = 'Pending'
+  await salesDoc.save()
+  req.flash('success', 'Cancel order successfully sent.')
+  res.redirect(`/users/product-status/${req.user.username}`)
+
+})
 
 module.exports = router;

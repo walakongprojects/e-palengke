@@ -100,7 +100,7 @@
                                     </div>
                                     <div class="box-tocart ">
 
-                                        <span>Quantity <%= product.quantity %></span>
+                                        <span>Quantity <%= product.quantity %> <%= product.measurement %></span>
 
                                         <div class="addtocart__actions">
                                             <a class="tocart" href="/cart/add/<%= product.slug %>" title="Add to Cart">Add to Cart</a>
@@ -215,7 +215,7 @@
                             <div class="quick-desc">
                                 <%= productOne.description %>
                             </div>
-                            <span>Quantity: <%= productOne.quantity %></span>
+                            <span>Quantity: <%= productOne.quantity %> <%= productOne.measurement %></span>
                             <div class="addtocart-btn">
                                 <a href="/cart/add-by-id/<%= productOne._id %>">Add to cart</a>
                             </div>
@@ -277,7 +277,6 @@
                                 </form>
                             <% } else { %>
                                 <form action="/bid/edit/<%= userCurrentBid._id %>" method="POST" enctype="multipart/form-data">
-                                    <h2>sad</h2>
                                     <div class="form-group mt-4">
                                         <label for="price">Amount</label>
                                         <input type="number" value="<%= parseFloat(userCurrentBid.price).toFixed(2) %>" name="price" class="form-control" id="price" placeholder="Amount">

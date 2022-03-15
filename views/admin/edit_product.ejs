@@ -39,6 +39,22 @@
       <% } %>
     </div>
 
+    <% let measurements = [ 'pc', 'kilo', 'liter'] %>
+
+    <div class="form-group">
+      <label for="measurement">Measurement</label>
+      <select name="measurement" class="form-control">
+        <% measurements.forEach(item => { %>
+          <% if (`${item}(s)` === measurement || !measurement) { %>
+            <option value="<%= item %>(s)" selected><%= item %></option>
+          <% } else { %>
+            <option value="<%= item %>(s)" ><%= item %></option>
+          <% }  %>
+        <% }) %>
+      </select>
+    </div>
+
+
     <div class="form-group">
       <label for="price">Price</label>
       <input type="text" name="price" id="price" value="<%= price %>" class="form-control form-control-sm" placeholder="Price">

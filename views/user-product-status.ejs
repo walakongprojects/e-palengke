@@ -1,6 +1,8 @@
 <% include ./partials/header %>
 
 <% if(currentUser.id == foundUser._id || currentUser.admin == 1) { %>
+      
+
 <div class="container">
     <div class="row">
       <div class="col-lg-12">
@@ -16,11 +18,6 @@
                           <a data-toggle="collapse" href="#<%= saleDummy._id %>-collapse" role="button" aria-expanded="true" aria-controls="collapseOne">
                           <p class="text-left">
                               |<strong>Control Number: </strong><%= saleDummy._id %>|
-
-                            
-                             
-
-
                               <% var paid = saleDummy.paid ? "Paid" : "Unpaid"; %>
                               <% var class1 = saleDummy.paid ? "success" : "danger"; %>
                               |<strong>Payment status: </strong><span class="text-<%= class1 %>"><%= paid %></span>|
@@ -32,12 +29,21 @@
                               |<strong>Subtotal: </strong>&#8369;<%= parseFloat(saleDummy.total).toFixed(2)%>|
                               |<strong>Shipping fee: </strong>Shipping fee: &#8369;100.00|
                               |<strong>Total: </strong> &#8369;<%= parseFloat|(100).toFixed(2) %>|
+                                <% if(saleDummy.cancelStatus) { %>
+                                    |<strong>Cancel order status: </strong> <%= saleDummy.cancelStatus %>|
+                                <% } %>
                           </p>
                           </a>
                       </h5>
                   </div>
                   <div id="<%= saleDummy._id %>-collapse" class="collapse show" role="tabpanel" aria-labelledby="<%= saleDummy._id %>" data-parent="#accordion">
                       <div class="card-body">
+
+                        <% if(!saleDummy.cancelStatus || saleDummy.cancelStatus === '') { %>
+                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#<%= saleDummy._id %>-pop-up">
+                                Cancel Order
+                            </button>
+                        <% } %>
 
 
                           <div class="table-content wnro__table table-responsive">
@@ -81,6 +87,63 @@
       </div> 
     </div> 
 </div> 
+
+<!-- Modal -->
+<% sales.forEach(sale => { %>
+    <div class="modal fade" id="<%= sale._id %>-pop-up" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- <div class="modal fade" id="sad" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true"> -->
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <form action="/cart/cancelOrder/<%= sale._id %>" method="POST" enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="cancelReason">Reason</label>
+                    <textarea id="cancelReason" name="cancelReason" cols="30" rows="3" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            </div>
+        </form>
+    </div>
+    </div>
+<% }) %>
+
+<!-- QUICKVIEW PRODUCT -->
+<div id="quickview-wrapper">
+    <!-- Modal -->
+<% sales.forEach(sale => { %>
+    <div class="modal fade" id="<%= sale._id %>" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal__container" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal__header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-product">
+                        <div class="product-info">
+                            <h1><%= sale._id %></h1>
+                            <h1>sad</h1>
+                        </div><!-- .product-info -->
+                    </div><!-- .modal-product -->
+                </div><!-- .modal-body -->
+            </div><!-- .modal-content -->
+        </div><!-- .modal-dialog -->
+    </div>
+    <!-- END Modal -->
+    <% }) %>
+  </div>
+  <!-- END QUICKVIEW PRODUCT -->
+<% include ./partials/sidebarend %>
+
 
   <% include ./partials/footer %>
 

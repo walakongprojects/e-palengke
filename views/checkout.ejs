@@ -36,7 +36,7 @@
                                             <td class="product-name"><a href="#"><%= product.title %></a></td>
                                             <td class="product-price"><span class="amount">&#8369;<%= parseFloat(product.price).toFixed(2) %></span></td>
                                             <td class="product-quantity">
-                                            <strong> <%= product.qty %> </strong>&nbsp;
+                                            <strong> <%= product.qty %> <%= product.measurement %> </strong>&nbsp;
                                             <a title="Add one" href="/cart/update/<%= product.title %>?action=add"> + </a>&nbsp;
                                             <a title="Remove one" href="/cart/update/<%= product.title %>?action=remove"> - </a>&nbsp;
                                             </td>
@@ -54,7 +54,7 @@
                                         <td class="product-name"><a href="#"><%= approvedBid.productId.title %><span class="text-success">(Approved Bid)</span></a></td>
                                         <td class="product-price"><span class="amount">&#8369;<%= parseFloat(approvedBid.bid.price).toFixed(2) %></span></td>
                                         <td class="product-quantity">
-                                            <strong> <%= approvedBid.bid.quantity %> </strong>&nbsp;
+                                            <strong> <%= approvedBid.bid.quantity %> <%= approvedBid.productId.measurement %> </strong>&nbsp;
                                         </td>
                                         <td class="product-subtotal">&#8369;<%= subTotalBid %></td>
                                     </tr>

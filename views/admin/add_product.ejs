@@ -32,6 +32,16 @@
     </div>
 
     <div class="form-group">
+      <label for="measurement">Measurement</label>
+      <select name="measurement" class="form-control">
+          <option value="pc(s)" selected>pc</option>
+          <option value="kilo(s)">kilo</option>
+          <option value="liter(s)">liter</option>
+      </select>
+    </div>
+
+
+    <div class="form-group">
       <label for="slug">Price</label>
       <input type="text" name="price" id="price" value="<%= price %>" class="form-control form-control-sm" placeholder="Price">
     </div>

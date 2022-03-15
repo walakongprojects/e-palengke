@@ -4,6 +4,7 @@ const fs      = require("fs");
 // Get Page Model
 const Sales = require('../models/sales');
 const Bid = require('../models/bid');
+const paypal = require('paypal-rest-sdk')
 
 const auth = require('../config/auth')
 
@@ -111,6 +112,59 @@ router.get('/sales-report', auth.isAdmin, (req, res) => {
     })
   }
 });
+
+router.get('/cancelOrder/:id/:status', async (req, res) => {
+  const { id, status } = req.params
+
+  const salesDoc = await Sales.findById(id)
+  if (!salesDoc) {
+    req.flash('danger', 'Sale document not found.')
+    res.redirect('/admin/sales')
+  } else {
+    if (status === 'reject') {
+      salesDoc.cancelStatus = 'Reject'
+      await salesDoc.save()
+
+      req.flash('success', 'Order successfully rejected')
+      res.redirect('/admin/sales')
+    } else {
+
+      const refund_details = {
+        "amount": {
+          "currency": "PHP",
+          "total": salesDoc.totalWithShipping
+        }
+      }
+
+      console.log(salesDoc.paypalTransactionId, 'salesDoc.paypalTransactionId')
+      // paypal.capture.get(salesDoc.paypalTransactionId, async function (error, data) {
+      //    if (error) {
+      //     console.log(error)
+      //     req.flash('danger', 'Something went wrong when cancelling order')
+      //     res.redirect('/admin/sales')
+      //   } else {
+      //     console.log(data, 'data')
+      //     req.flash('success', 'test')
+      //     res.redirect('/admin/sales')
+      //   }    
+      // })
+      paypal.capture.refund(salesDoc.paypalTransactionId, refund_details, async function (error, refund) {
+        if (error) {
+          console.log(error)
+          req.flash('danger', 'Something went wrong when cancelling order')
+          res.redirect('/admin/sales')
+        } else {
+          console.log(refund, 'refund')
+          salesDoc.cancelStatus = 'Approved'
+          await salesDoc.save()
+
+          req.flash('success', 'Order successfully approved')
+          res.redirect('/admin/sales')
+        }
+      })
+    }
+  }
+})
 
 router.get('/:id', auth.isAdmin, (req, res) => {
 

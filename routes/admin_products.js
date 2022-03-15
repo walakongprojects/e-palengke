@@ -163,7 +163,8 @@ router.post('/add-product', auth.isAdmin, (req, res) => {
           category: category,
           quantity: quantity,
           image: imageF,
-          enableBidding
+          enableBidding,
+          measurement: req.body.measurement,
         });
 
         // console.log(product)
@@ -241,6 +242,7 @@ router.get('/edit-product/:id', auth.isAdmin, (req, res) => {
               category: foundProduct.category.replace(/\s+/g, '-').toLowerCase(),
               errors: errors,
               quantity: foundProduct.quantity,
+              measurement: foundProduct.measurement,
               image: foundProduct.image,
               galleryImages: galleryImages,
               id: foundProduct._id,
@@ -347,11 +349,12 @@ router.post('/edit-product/:id', auth.isAdmin, (req, res) => {
           foundProductById.price = parseFloat(price).toFixed(2);
           foundProductById.description = description;
           foundProductById.category = category;
-          if (Number(foundProductById.quantity)) {
+          // if (Number(foundProductById.quantity)) {
             foundProductById.quantity = addOrRemove === 'add' ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
-          }
+          // }
           // foundProductById.quantity = quantityBool ? parseInt(foundProductById.quantity) + parseInt(quantity) :  parseInt(foundProductById.quantity) - parseInt(quantity);
           foundProductById.enableBidding = enableBidding
+          foundProductById.measurement = req.body.measurement
         
           if(imageF != "") {
             foundProductById.image = imageF;

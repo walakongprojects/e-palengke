@@ -40,6 +40,25 @@ var saleSchema = mongoose.Schema({
     type: Number,
     default: 100
   },
+  paypalTransactionId: {
+    type: String
+  },
+  payerId: {
+    type: String
+  },
+  cancelReason: {
+    type: String
+  },
+  cancelStatus: {
+    type: String,
+    enum: [
+      '',
+      'Pending',
+      'Approved',
+      'Reject'
+    ],
+    default: ''
+  },
   totalWithShipping: Number
 });
 

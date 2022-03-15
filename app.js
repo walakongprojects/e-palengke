@@ -26,7 +26,14 @@ const myDb = require('./config/database');
 mongoose.connect(myDb.databaseDev, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true });
 mongoose.connection
   .on('error', console.error.bind(console, 'Connection error: '))
-  .once('open', () => console.log('Connected to MongoDB'))
+  .once('open', async () => {
+    await require('./models/products').updateMany({}, {
+      $set: {
+        measurement: 'pc(s)'
+      }
+    })
+    console.log('Connected to MongoDB')
+  })
 
 // Setup Middlewares and other settings
 app.use(express.static(path.join(__dirname, 'public')));

@@ -23,6 +23,15 @@ var productSchema = mongoose.Schema({
     type: Number,
     required: true
   },
+  measurement: {
+    type: String,
+    enum: [
+      'kilo(s)',
+      'pc(s)',
+      'liter(s)'
+    ],
+    default: 'pc(s)'
+  },
   rating: {
     num_rated: {
       type: Number,
