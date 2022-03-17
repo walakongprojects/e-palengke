@@ -28,7 +28,8 @@ var productSchema = mongoose.Schema({
     enum: [
       'kilo(s)',
       'pc(s)',
-      'liter(s)'
+      'liter(s)',
+      'bundle(s)'
     ],
     default: 'pc(s)'
   },

@@ -27,11 +27,6 @@ mongoose.connect(myDb.databaseDev, { useNewUrlParser: true, useUnifiedTopology: 
 mongoose.connection
   .on('error', console.error.bind(console, 'Connection error: '))
   .once('open', async () => {
-    await require('./models/products').updateMany({}, {
-      $set: {
-        measurement: 'pc(s)'
-      }
-    })
     console.log('Connected to MongoDB')
   })
 

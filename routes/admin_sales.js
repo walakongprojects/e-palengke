@@ -5,6 +5,7 @@ const fs      = require("fs");
 const Sales = require('../models/sales');
 const Bid = require('../models/bid');
 const paypal = require('paypal-rest-sdk')
+const moment = require('moment')
 
 const auth = require('../config/auth')
 
@@ -121,12 +122,14 @@ router.get('/cancelOrder/:id/:status', async (req, res) => {
     req.flash('danger', 'Sale document not found.')
     res.redirect('/admin/sales')
   } else {
+    console.log(status, 'status')
     if (status === 'reject') {
       salesDoc.cancelStatus = 'Reject'
       await salesDoc.save()
 
-      req.flash('success', 'Order successfully rejected')
+      req.flash('success', 'Cancel order rejected.')
       res.redirect('/admin/sales')
+      console.log('2233')
     } else {
 
       const refund_details = {
@@ -158,11 +161,60 @@ router.get('/cancelOrder/:id/:status', async (req, res) => {
           salesDoc.cancelStatus = 'Approved'
           await salesDoc.save()
 
-          req.flash('success', 'Order successfully approved')
+          req.flash('success', 'Cancel order successfully approved')
           res.redirect('/admin/sales')
         }
       })
     }
+  }
+})
+
+router.post('/deliveryStatus/:id', async (req, res) => {
+  const { id } = req.params
+  
+  console.log(req.body, 'req.body')
+  const salesDoc = await Sales.findById(id)
+  if (!salesDoc) {
+    req.flash('danger', 'Sales document does not exist.')
+    res.redirect('/admin/sales')
+  } else {
+    const { status } = req.body
+    const obj = {}
+    let currentStatus = status 
+
+    switch (currentStatus) {
+      case 'Packing':
+        obj.text = 'Shop is packing your order.'
+        obj.date = moment().format('YYYY-MM-DD')
+        obj.status = currentStatus
+        break;
+      case 'On Delivery':
+        obj.text = 'Your order is on the way. Please prepare exact amount.'
+        obj.date = moment().format('YYYY-MM-DD')
+        obj.status = currentStatus
+        break;
+      case 'Delivered':
+        obj.text = 'Your order is delivered.'
+        obj.date = moment().format('YYYY-MM-DD')
+        obj.status = currentStatus
+        break;
+    }
+
+    const newDeliveryStatus = salesDoc.deliveryStatus
+    newDeliveryStatus.push(obj)
+
+    salesDoc.deliveryStatus = newDeliveryStatus
+    salesDoc.currentDeliveryStatus = currentStatus
+    if (currentStatus === 'Delivered') {
+      salesDoc.isDelivered = true
+    }
+    if (currentStatus === 'Packing') {
+      const [month, day, year] = req.body.date.split('/')
+      salesDoc.estimatedDate = moment(`${year}-${month}-${day}`).format('YYYY-MM-DD')
+    }
+    await salesDoc.save()
+    req.flash('success', 'Successfully update delivery status.')
+    res.redirect('/admin/sales')
   }
 })
 

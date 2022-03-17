@@ -6,14 +6,16 @@
   </div>
   <br>
   
-  <%if(!sales.isDelivered) {%>
-    <p>Click if items are delivered</p>
+  <%if(sales.isDelivered) {%>
+    <!-- <p>Click if items are delivered</p>
     <form class="mb-3" action="/admin/sales/<%= sales._id %>/delivered" method="post">
       <button type="submit" class="btn btn-outline-success">Delivered</button>
-    </form>
-  <% } else { %>
+    </form> -->
     <h1 class="display-4 text-success">This item is already delivered</h1>
+  <% } else { %>
+    <h1 class="display-4 text-warning">Not yet delivered</h1>
   <% } %>
+
   <%if(!sales.paid) {%>
     <p>Click if already paid</p>
     <form class="mb-3" action="/admin/sales/<%= sales._id %>/paid" method="post">

@@ -125,8 +125,17 @@
                   <% if (cart) { %>
                     <% cart.forEach(product => { %>
                       <% var subTotal = parseFloat(product.price * product.qty).toFixed(2) %>
+                        <% if (product.partial) { %>
+                            <% if (product.partial === '1/4') { %>
+                                <% subTotal = parseFloat(+subTotal + (product.price * 0.25)).toFixed(2)  %>
+                            <% } else if (product.partial === '1/2') { %>
+                                <% subTotal = parseFloat(+subTotal + (product.price * 0.5)).toFixed(2)  %>
+                            <% } else { %>
+                                <% subTotal = parseFloat(+subTotal + (product.price * 0.75)).toFixed(2)  %>
+                            <% } %>
+                        <% } %>
                       <% total += +subTotal %>
-                      <li><%= product.title %> × <%= product.qty %><span>&#8369;<%= subTotal %></span></li>
+                      <li><%= product.title %> × <%= product.qty %> <%= product.partial ? 'and '+ product.partial : '' %> <%= product.measurement %><span>&#8369;<%= subTotal %></span></li>
                     <% }); %>
                   <% } %>
                   <% if (approvedBids) { %>

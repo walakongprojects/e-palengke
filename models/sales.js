@@ -1,5 +1,23 @@
 const mongoose = require('mongoose');
 
+const history = {
+  status: {
+    type: String,
+    enum: [
+      'Pending',
+      'Packing',
+      'On Delivery',
+      'Delivered'
+    ]
+  },
+  date: {
+    type: Date
+  },
+  text: {
+    type: String
+  }
+}
+
 var saleSchema = mongoose.Schema({
   product: [],
   date: {
@@ -59,8 +77,22 @@ var saleSchema = mongoose.Schema({
     ],
     default: ''
   },
-  totalWithShipping: Number
+  totalWithShipping: Number,
+  deliveryStatus: {
+    type: [ history ],
+  },
+  currentDeliveryStatus: {
+    type: String,
+    enum: [
+      'Pending',
+      'Packing',
+      'On Delivery',
+      'Delivered'
+    ]
+  },
+  estimatedDate: {
+    type: Date
+  }
 });
-
 
 module.exports = mongoose.model('Sale', saleSchema);

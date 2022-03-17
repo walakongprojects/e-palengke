@@ -27,7 +27,7 @@
           <tr>
               <td><%= product.title %></td>
               <td>&#8369;<%= parseFloat(product.price).toFixed(2) %></td>
-              <td><%= product.quantity %></td>
+              <td><%= product.quantity %> <%= product.measurement %></td>
               <td><%= product.category %></td>
               <td>
                 <% if(product.image == ""){ %>

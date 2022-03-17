@@ -12,7 +12,6 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 col-sm-12 ol-lg-12">
-                <form action="#">               
                     <div class="table-content wnro__table table-responsive">
                         <table>
                             <thead>
@@ -30,15 +29,47 @@
                                 <% if (cart) { %>
                                     <% cart.forEach(product => { %>
                                         <% var subTotal = parseFloat(product.price * product.qty).toFixed(2) %>
+                                        <% if (product.partial) { %>
+                                            <% if (product.partial === '1/4') { %>
+                                                <% subTotal = parseFloat(+subTotal + (product.price * 0.25)).toFixed(2)  %>
+                                            <% } else if (product.partial === '1/2') { %>
+                                                <% subTotal = parseFloat(+subTotal + (product.price * 0.5)).toFixed(2)  %>
+                                            <% } else { %>
+                                                <% subTotal = parseFloat(+subTotal + (product.price * 0.75)).toFixed(2)  %>
+                                            <% } %>
+                                        <% } %>
                                         <% total += +subTotal %>
                                         <tr>
                                             <td class="product-thumbnail"><a href="#"><img src="<%= product.image %>" alt="product img"></a></td>
                                             <td class="product-name"><a href="#"><%= product.title %></a></td>
                                             <td class="product-price"><span class="amount">&#8369;<%= parseFloat(product.price).toFixed(2) %></span></td>
                                             <td class="product-quantity">
-                                            <strong> <%= product.qty %> <%= product.measurement %> </strong>&nbsp;
+                                            <strong> <%= product.qty %> <%= product.partial ? ' and '+ product.partial : '' %> <%= product.measurement %> </strong>&nbsp;
                                             <a title="Add one" href="/cart/update/<%= product.title %>?action=add"> + </a>&nbsp;
                                             <a title="Remove one" href="/cart/update/<%= product.title %>?action=remove"> - </a>&nbsp;
+                                            <% let partialList = [ '', '1/4', '1/2', '3/4' ] %>
+                                            <% if (['kilo(s)', 'liter(s)' ].includes(product.measurement)) { %>
+                                                <div class="">
+                                                    <form action="/cart/partial/<%= product.slug %>" method="POST" enctype="multipart/form-data" class="d-flex justify-content-center">
+                                                        <div class="col-md-6">
+                                                            <select name="partial" class="form-control form-control-sm">
+                                                                <% partialList.forEach(item => { %>
+                                                                    <% if (product.partial && product.partial === item) { %>
+                                                                        <option value="<%= item %>" selected><%= item %></option>
+                                                                    <% } else if (!product.partial && product.partial !== '' && item === '') { %>
+                                                                        <option value="<%= item %>" selected><%= item %></option>
+                                                                    <% } else {  %>
+                                                                        <option value="<%= item %>" ><%= item %></option>
+                                                                    <% } %>
+                                                                <% }) %>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <button class="btn btn-sm btn-primary inline-button" type="submit">Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            <% } %>
                                             </td>
                                             <td class="product-subtotal">&#8369;<%= subTotal %></td>
                                             <td class="product-remove"><a title="Remove Product" href="/cart/update/<%= product.title %>?action=clear">X</a></td>
@@ -63,7 +94,6 @@
                             </tbody>
                         </table>
                     </div>
-                </form> 
                 <div class="cartbox__btn">
                     <ul class="cart__btn__list d-flex flex-wrap flex-md-nowrap flex-lg-nowrap justify-content-between">
                         <li><a id="clearCart" href="/cart/clear">Clear Cart</a></li>

@@ -4,6 +4,7 @@ const https   = require("https");
 const fs      = require("fs");
 const auth = require('../config/auth')
 const paypal_config = require('../config/paypal');
+const moment = require('moment')
 
 
 // Page Model
@@ -71,6 +72,8 @@ router.get('/add/:product', (req, res) => {
     res.redirect('back');
   });
 });
+
+
 
 
 // Get add product to cart
@@ -212,6 +215,27 @@ router.get('/confirm-payment', auth.isUser, (req, res) => {
     res.redirect('/cart/payment-method');
   } 
 });
+
+router.post('/partial/:slug', async (req, res) => {
+  const { slug } = req.params
+  const { partial } = req.body
+  let cart = req.session.cart;
+
+  const productDoc = await Products.findOne({ slug })
+  if (!productDoc) {
+    req.flash('danger', 'Product not found');
+    res.redirect('/cart/checkout');
+    return
+  }
+
+  for (let index = 0; index < cart.length; index++) {
+    if (cart[index].title === slug) {
+      cart[index].partial = partial
+    }
+  }
+  req.flash('success', 'Cart Updated');
+  res.redirect('/cart/checkout');
+})
 
 // Update product
 router.get('/update/:product', (req, res) => {
@@ -507,7 +531,39 @@ router.post('/pay', auth.isUser, async (req, res) => {
   if (cart) {
     cart.forEach(product => {
       p = +(parseFloat(product.price).toFixed(2) * product.qty)
-      total += p;
+      if (product.partial) {
+        if (product.partial === '1/4') { 
+            console.log(parseFloat(Number(product.price * 0.25)).toFixed(2))
+            console.log(p, '1')
+            p += Number(parseFloat(Number(product.price * 0.25)).toFixed(2)) 
+            console.log(p, '2')
+            myPurchases.push({
+              "name": `${product.partial} of ${product.title}`,
+              "price": parseFloat(product.price * 0.25).toFixed(2),
+              "currency": "PHP",
+              "quantity": 1
+            })
+        } else if (product.partial === '1/2') { 
+            p += Number(parseFloat(Number(product.price * 0.5)).toFixed(2)) 
+            myPurchases.push({
+              "name": `${product.partial} of ${product.title}`,
+              "price": parseFloat(product.price * 0.5).toFixed(2),
+              "currency": "PHP",
+              "quantity": 1
+            })
+        } else { 
+            p += Number(parseFloat(Number(product.price * 0.75)).toFixed(2)) 
+            myPurchases.push({
+              "name": `${product.partial} of ${product.title}`,
+              "price": parseFloat(product.price * 0.75).toFixed(2),
+              "currency": "PHP",
+              "quantity": 1
+            })
+        } 
+      } 
+
+      console.log(p, 'pppp')
+      total += Number(p);
       myPurchases.push({
         "name": product.title,
         "price": product.price,
@@ -533,6 +589,7 @@ router.post('/pay', auth.isUser, async (req, res) => {
       }
     }
   }
+  console.log(total, 'total')
 
   const create_payment_json = {
     "intent": "sale",
@@ -602,7 +659,39 @@ router.get('/success', async (req, res) => {
   if (cart) {
     cart.forEach(product => {
       p = +(parseFloat(product.price).toFixed(2) * product.qty)
-      total += p;
+    if (product.partial) {
+      if (product.partial === '1/4') { 
+          console.log(parseFloat(Number(product.price * 0.25)).toFixed(2))
+          console.log(p, '11')
+          p += Number(parseFloat(Number(product.price * 0.25)).toFixed(2)) 
+          console.log(p, '22')
+          myPurchases.push({
+            "name": `${product.partial} of ${product.title}`,
+            "price": parseFloat(product.price * 0.25).toFixed(2),
+            "currency": "PHP",
+            "quantity": 1
+          })
+      } else if (product.partial === '1/2') { 
+          p += Number(parseFloat(Number(product.price * 0.5)).toFixed(2)) 
+          myPurchases.push({
+            "name": `${product.partial} of ${product.title}`,
+            "price": parseFloat(product.price * 0.5).toFixed(2),
+            "currency": "PHP",
+            "quantity": 1
+          })
+      } else { 
+          p += Number(parseFloat(Number(product.price * 0.75)).toFixed(2)) 
+          myPurchases.push({
+            "name": `${product.partial} of ${product.title}`,
+            "price": parseFloat(product.price * 0.75).toFixed(2),
+            "currency": "PHP",
+            "quantity": 1
+          })
+      } 
+
+    }
+    console.log(p, 'ppp')
+      total += Number(p);
       myPurchases.push({
         "name": product.title,
         "price": product.price,
@@ -697,6 +786,43 @@ router.get('/success', async (req, res) => {
 
         if (cart) {
           cart.forEach(prod => {
+            if (prod.partial) {
+              if (prod.partial === '1/4') { 
+                  total += +parseFloat(total + (prod.price * 0.25).toFixed(2)).toFixed(2)  
+                  // TODO
+                  purchases.push({
+                    title: '1/4 of ' + prod.title,
+                    qty: 1,
+                    price: +parseFloat(Number(prod.price * 0.25)).toFixed(2),
+                    image: prod.image,
+                    category: prod.category,
+                    slug: prod.slug,
+                    measurement: prod.measurement
+                  })  
+              } else if (prod.partial === '1/2') { 
+                  total += +parseFloat(total + (prod.price * 0.5)).toFixed(2)  
+                  purchases.push({
+                    title: '1/2 of ' + prod.title,
+                    qty: 1,
+                    price: +parseFloat(Number(prod.price * 0.5)).toFixed(2),
+                    image: prod.image,
+                    category: prod.category,
+                    slug: prod.slug,
+                    measurement: prod.measurement
+                  })
+              } else { 
+                  total += +parseFloat(total + (prod.price * 0.75)).toFixed(2)  
+                  purchases.push({
+                    title: '3/4 of ' + prod.title,
+                    qty: 1,
+                    price: +parseFloat(Number(prod.price * 0.75)).toFixed(2),
+                    image: prod.image,
+                    category: prod.category,
+                    slug: prod.slug,
+                    measurement: prod.measurement
+                  })
+              } 
+            }
             total += parseFloat(prod.price).toFixed(2) * parseInt(prod.qty);
             purchases.push(prod);
           })
@@ -723,7 +849,6 @@ router.get('/success', async (req, res) => {
 
         // Updating Invetory
         purchases.forEach((prod) => {
-          console.log(prod.title, prod.qty)
           Products.findOne({slug: prod.slug})
             .then(prod1 => {
               Products.updateOne({_id: prod1._id}, {$inc: {quantity: -(parseInt(prod.qty))}})
@@ -732,6 +857,10 @@ router.get('/success', async (req, res) => {
             })
             .catch(err => console.log(err))
         });
+
+        for (const item of purchases) {
+          console.log(item, 'item')
+        }
 
         var sales ={
           product: purchases,
@@ -744,7 +873,9 @@ router.get('/success', async (req, res) => {
           totalWithShipping: (total + 100),
           paid: true,
           paypalTransactionId: resources.sale.id,
-          payerId: payment.payer.payer_info.payer_id
+          payerId: payment.payer.payer_info.payer_id,
+          deliveryStatus: [ { status: 'Pending', date: moment(), text: 'The order is still on pending.' }],
+          currentDeliveryStatus: 'Pending'
         };
       
         Sales.create(sales, (err, createdSale) => {
@@ -782,7 +913,6 @@ router.get('/success', async (req, res) => {
               //     tax: "%"
               // },
               // tax: 5,
-              
             };
           
             generateInvoice(invoice, __dirname + `/files/invoice-${createdSale._id}.pdf`, async () => {
